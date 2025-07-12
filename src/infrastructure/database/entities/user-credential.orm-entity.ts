@@ -4,7 +4,7 @@ import { UserOrmEntity } from './user.orm-entity';
 
 @Entity('credentials')
 @Unique(['userId'])
-export class CredentialOrmEntity {
+export class UserCredentialOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -20,6 +20,9 @@ export class CredentialOrmEntity {
 
   @Column({ length: 255 })
   salt: string;
+
+  @Column({ type: 'timestamp' })
+  passwordChangedAt: Date;
 
   @CreateDateColumn()
   createdAt: Date;

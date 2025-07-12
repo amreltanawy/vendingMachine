@@ -5,6 +5,7 @@ export class UserCredential {
         private readonly _userId: UserId,
         private readonly _passwordHash: string,
         private readonly _salt: string,
+        private readonly _passwordChangedAt: Date,
         private readonly _createdAt?: Date,
         private readonly _updatedAt?: Date,
     ) { }
@@ -17,6 +18,9 @@ export class UserCredential {
     }
     get salt(): string {
         return this._salt;
+    }
+    get passwordChangedAt(): Date {
+        return this._passwordChangedAt;
     }
     get createdAt(): Date | undefined {
         return this._createdAt;
