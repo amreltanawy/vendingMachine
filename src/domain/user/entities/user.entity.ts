@@ -2,7 +2,7 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { UserId } from '../value-objects/user-id.vo';
 import { UserRole } from '../value-objects/user-role.vo';
-import { Money } from '../../shared/value-object/money.vo';
+import { Money } from '../../shared/value-objects/money.vo';
 import { UserCreatedEvent } from '../events/user-created.event';
 import { DepositAddedEvent } from '../events/deposit-added.event';
 
@@ -11,7 +11,9 @@ export class User extends AggregateRoot {
         private readonly _id: UserId,
         private readonly _username: string,
         private _deposit: Money,
-        private readonly _role: UserRole
+        private readonly _role: UserRole,
+        private readonly _createdAt: Date,
+        private readonly _updatedAt: Date
     ) {
         super();
     }
@@ -19,9 +21,12 @@ export class User extends AggregateRoot {
     static create(
         id: UserId,
         username: string,
-        role: UserRole
+        role: UserRole,
+        deposit: Money,
+        createdAt: Date,
+        updatedAt: Date
     ): User {
-        const user = new User(id, username, Money.zero(), role);
+        const user = new User(id, username, deposit, role, createdAt, updatedAt);
         user.apply(new UserCreatedEvent(id.value, username, role.value));
         return user;
     }
@@ -40,6 +45,14 @@ export class User extends AggregateRoot {
 
     get role(): UserRole {
         return this._role;
+    }
+
+    get createdAt(): Date {
+        return this._createdAt;
+    }
+
+    get updatedAt(): Date {
+        return this._updatedAt;
     }
 
     canBuyProduct(): boolean {
