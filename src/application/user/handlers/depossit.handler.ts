@@ -3,7 +3,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { DepositCommand } from '../commands/deposit.command';
 import { IUserRepository } from '../../../domain/user/repositories/user.irepository';
-import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { Money } from '../../../domain/shared/value-objects/money.vo';
 
 @CommandHandler(DepositCommand)

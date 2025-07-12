@@ -9,6 +9,7 @@ import { User } from '../../../domain/user/entities/user.entity';
 import { UserCredential } from '../../../domain/user/entities/user-credential.entity';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { UserRole } from '../../../domain/user/value-objects/user-role.vo';
+import { Money } from 'src/domain/shared/value-objects/money.vo';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
@@ -17,7 +18,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
         private readonly userCredentialRepository: IUserCredentialRepository
     ) { }
 
-    async execute(command: CreateUserCommand): Promise<string> {
+    async execute(command: CreateUserCommand): Promise<UserId> {
         // Validate input
         if (!command.username || !command.password || !command.role) {
             throw new BadRequestException('Username, password, and role are required');
@@ -39,7 +40,10 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
         const user = User.create(
             userId,
             command.username,
-            userRole
+            userRole,
+            Money.zero(),
+            new Date(),
+            new Date()
         );
 
         // Hash password with salt
@@ -64,7 +68,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
             // Commit events (handled by NestJS CQRS)
             user.commit();
 
-            return userId.value;
+            return userId;
         } catch (error) {
             // Rollback if either save fails
             throw new BadRequestException('Failed to create user account');
