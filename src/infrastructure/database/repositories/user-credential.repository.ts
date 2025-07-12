@@ -27,6 +27,18 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
     }
   }
 
+  async findByUsername(username: string): Promise<UserCredential | null> {
+    try {
+      const ormEntity = await this.ormRepository.findOne({
+        where: { user: { username } }
+      });
+
+      return ormEntity ? UserCredentialMapper.toDomain(ormEntity) : null;
+    } catch (error) {
+      throw new Error(`Failed to find credentials by username: ${error.message}`);
+    }
+  }
+
   async save(credential: UserCredential): Promise<void> {
     try {
       const ormEntity = UserCredentialMapper.toOrm(credential);

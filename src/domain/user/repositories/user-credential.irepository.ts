@@ -16,6 +16,13 @@ export abstract class IUserCredentialRepository {
     abstract findByUserId(userId: UserId): Promise<UserCredential | null>;
 
     /**
+     * Find credentials by username.
+     * @param username - User unique identifier
+     * @returns UserCredential entity or null if not found
+     */
+    abstract findByUsername(username: string): Promise<UserCredential | null>;
+
+    /**
      * Save or update user credentials.
      * @param credential - UserCredential entity to persist
      */

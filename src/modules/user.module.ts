@@ -42,6 +42,6 @@ const QueryHandlers = [
         },
         UserApplicationService,
     ],
-    exports: [UserApplicationService],
+    exports: [UserApplicationService, IUserRepository, IUserCredentialRepository],
 })
 export class UserModule { }
