@@ -9,7 +9,7 @@ import { Money } from '../../../domain/shared/value-objects/money.vo';
 export class DepositHandler implements ICommandHandler<DepositCommand> {
     constructor(private readonly userRepository: IUserRepository) { }
 
-    async execute(command: DepositCommand): Promise<void> {
+    async execute(command: DepositCommand): Promise<{ totalDeposit: Money }> {
         // Validate input
         if (!command.userId || !command.amount) {
             throw new BadRequestException('User ID and amount are required');
@@ -36,6 +36,9 @@ export class DepositHandler implements ICommandHandler<DepositCommand> {
 
             // Save user with updated deposit
             await this.userRepository.save(user);
+            return {
+                totalDeposit: user.deposit
+            };
         } catch (error) {
             if (error.message.includes('Invalid coin denomination')) {
                 throw new BadRequestException(error.message);
