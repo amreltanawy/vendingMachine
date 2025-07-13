@@ -1,11 +1,7 @@
 // src/modules/product.module.ts
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { CqrsModule } from '@nestjs/cqrs';
 
-// ORM Entities
-import { ProductOrmEntity } from '../infrastructure/database/entities/product.orm-entity';
-import { ProductEventOrmEntity } from '../infrastructure/database/entities/product-event.orm-entity';
 
 // Repository Interfaces and Implementations
 import { IProductRepository } from '../domain/product/repositories/product.irepository';
@@ -38,6 +34,7 @@ import { ProductController } from '../presentation/controllers/product.controlle
 
 // External Dependencies
 import { UserModule } from './user.module';
+import { DatabaseModule } from './database.module';
 
 const CommandHandlers = [
     CreateProductHandler,
@@ -56,10 +53,7 @@ const QueryHandlers = [
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([
-            ProductOrmEntity,
-            ProductEventOrmEntity,
-        ]),
+        DatabaseModule,
         CqrsModule,
         UserModule, // Required for user repository dependency
     ],
