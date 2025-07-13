@@ -5,6 +5,8 @@ import { UserRole } from '../value-objects/user-role.vo';
 import { Money } from '../../shared/value-objects/money.vo';
 import { UserCreatedEvent } from '../events/user-created.event';
 import { DepositAddedEvent } from '../events/deposit-added.event';
+import { UserRoleException } from '../exceptions/user-domain.exceptions';
+import { InsufficientFundsException } from '../../shared/exceptions/money-domain.exceptions';
 
 export class User extends AggregateRoot {
     private constructor(
@@ -65,7 +67,7 @@ export class User extends AggregateRoot {
 
     addDeposit(amount: Money): void {
         if (!this.canBuyProduct()) {
-            throw new Error('Only buyers can deposit money');
+            throw new UserRoleException('Only buyers can deposit money', { userId: this._id.value, role: this._role.value });
         }
 
         this._deposit = this._deposit.add(amount);
@@ -74,7 +76,7 @@ export class User extends AggregateRoot {
 
     resetDeposit(): void {
         if (!this.canBuyProduct()) {
-            throw new Error('Only buyers can reset deposit');
+            throw new UserRoleException('Only buyers can reset deposit', { userId: this._id.value, role: this._role.value });
         }
 
         this._deposit = Money.zero();
@@ -82,11 +84,11 @@ export class User extends AggregateRoot {
 
     spendMoney(amount: Money): void {
         if (!this.canBuyProduct()) {
-            throw new Error('Only buyers can spend money');
+            throw new UserRoleException('Only buyers can spend money', { userId: this._id.value, role: this._role.value });
         }
 
         if (this._deposit.isLessThan(amount)) {
-            throw new Error('Insufficient funds');
+            throw new InsufficientFundsException(this._deposit.cents, amount.cents);
         }
 
         this._deposit = this._deposit.subtract(amount);

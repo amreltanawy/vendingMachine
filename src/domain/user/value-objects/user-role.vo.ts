@@ -1,5 +1,6 @@
 // src/domain/user/value-objects/user-role.vo.ts
 import { IValueObject, ValueObject } from '../../shared/base/value-object';
+import { UserRoleException } from '../exceptions/user-domain.exceptions';
 
 type RoleLiteral = 'buyer' | 'seller';
 
@@ -25,7 +26,7 @@ export class UserRole extends ValueObject<UserRoleProps> implements IUserRole {
     }
     public static from(role: string): UserRole {
         if (role !== 'buyer' && role !== 'seller') {
-            throw new Error(`Unsupported role "${role}"`);
+            throw new UserRoleException(`Unsupported role "${role}"`, { role, validRoles: ['buyer', 'seller'] });
         }
         return new UserRole({ value: role as RoleLiteral });
     }

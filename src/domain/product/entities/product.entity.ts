@@ -5,6 +5,7 @@ import { Money } from '../../shared/value-objects/money.vo';
 import { UserId } from '../../user/value-objects/user-id.vo';
 import { ProductCreatedEvent } from '../events/product-created.event';
 import { ProductPurchasedEvent } from '../events/product-purchased.event';
+import { ProductAmountException, ProductNotAvailableException } from '../exceptions/product-domain.exceptions';
 
 export class Product extends AggregateRoot {
     private constructor(
@@ -29,7 +30,7 @@ export class Product extends AggregateRoot {
         updatedAt: Date = new Date()
     ): Product {
         if (amountAvailable < 0) {
-            throw new Error('Amount available cannot be negative');
+            throw new ProductAmountException('Amount available cannot be negative', { amountAvailable });
         }
 
         const product = new Product(id, name, cost, amountAvailable, sellerId, createdAt, updatedAt);
@@ -83,11 +84,11 @@ export class Product extends AggregateRoot {
 
     purchase(quantity: number): void {
         if (!this.isAvailable()) {
-            throw new Error('Product is not available');
+            throw new ProductNotAvailableException(this._name, this._amountAvailable, quantity);
         }
 
         if (this._amountAvailable < quantity) {
-            throw new Error('Insufficient product quantity');
+            throw new ProductNotAvailableException(this._name, this._amountAvailable, quantity);
         }
 
         this._amountAvailable -= quantity;
@@ -96,7 +97,7 @@ export class Product extends AggregateRoot {
 
     updateAmount(newAmount: number): void {
         if (newAmount < 0) {
-            throw new Error('Amount cannot be negative');
+            throw new ProductAmountException('Amount cannot be negative', { newAmount });
         }
         this._amountAvailable = newAmount;
     }

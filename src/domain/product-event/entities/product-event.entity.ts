@@ -6,6 +6,7 @@ import { UserId } from '../../user/value-objects/user-id.vo';
 import { ProductEventType } from '../value-objects/product-event-type.vo';
 import { Money } from '../../shared/value-objects/money.vo';
 import { ProductEventCreatedEvent } from '../events/product-event-created.event';
+import { InvalidProductEventQuantityException } from '../exceptions/product-event-domain.exceptions';
 
 export class ProductEvent extends AggregateRoot {
   private constructor(
@@ -34,7 +35,7 @@ export class ProductEvent extends AggregateRoot {
     metadata?: Record<string, any>
   ): ProductEvent {
     if (quantity <= 0) {
-      throw new Error('Quantity must be greater than zero');
+      throw new InvalidProductEventQuantityException(quantity);
     }
 
     const totalValue = Money.fromCents(unitPrice.cents * quantity);

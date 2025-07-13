@@ -1,5 +1,6 @@
 // src/domain/shared/value-objects/money.vo.ts
 import { IValueObject, ValueObject } from '../base/value-object';
+import { InvalidMoneyValueException, InvalidCoinDenominationException, InsufficientFundsException } from '../exceptions/money-domain.exceptions';
 
 type MoneyProps = {
     cents: number;
@@ -15,7 +16,7 @@ export class Money extends ValueObject<MoneyProps> implements IMoney {
 
     private constructor(props: MoneyProps) {
         super(props);
-        if (props.cents < 0) throw new Error('Money cannot be negative');
+        if (props.cents < 0) throw new InvalidMoneyValueException('Money cannot be negative', { cents: props.cents });
     }
 
     /** Zero amount constant. */
@@ -25,18 +26,14 @@ export class Money extends ValueObject<MoneyProps> implements IMoney {
 
     /** Any integer cents value (use cautiously outside domain boundaries). */
     public static fromCents(cents: number): Money {
-        if (!Number.isInteger(cents)) throw new Error('Money value must be integer cents');
+        if (!Number.isInteger(cents)) throw new InvalidMoneyValueException('Money value must be integer cents', { cents });
         return new Money({ cents });
     }
 
     /** Only factory for user deposits (enforces valid coin size). */
     public static fromValidDenomination(cents: number): Money {
         if (!Money.VALID_DENOMINATIONS.includes(cents)) {
-            throw new Error(
-                `Invalid coin: ${cents}. Valid denominations: ${Money.VALID_DENOMINATIONS.join(
-                    ', '
-                )}`
-            );
+            throw new InvalidCoinDenominationException(cents, Money.VALID_DENOMINATIONS);
         }
         return new Money({ cents });
     }
@@ -57,7 +54,7 @@ export class Money extends ValueObject<MoneyProps> implements IMoney {
 
     public subtract(other: Money): Money {
         const result = this.cents - other.cents;
-        if (result < 0) throw new Error('Cannot subtract more than current amount');
+        if (result < 0) throw new InsufficientFundsException(this.cents, other.cents);
         return new Money({ cents: result });
     }
 

@@ -1,5 +1,6 @@
 // src/domain/product-event/value-objects/product-event-type.vo.ts
 import { IValueObject, ValueObject } from '../../shared/base/value-object';
+import { InvalidProductEventTypeException } from '../exceptions/product-event-domain.exceptions';
 
 type ProductEventTypeLiteral = 'top_up' | 'withdraw';
 
@@ -26,7 +27,7 @@ export class ProductEventType extends ValueObject<ProductEventTypeProps> impleme
 
     public static from(type: string): ProductEventType {
         if (type !== 'top_up' && type !== 'withdraw') {
-            throw new Error(`Invalid product event type: "${type}"`);
+            throw new InvalidProductEventTypeException(type, ['top_up', 'withdraw']);
         }
         return new ProductEventType({ value: type as ProductEventTypeLiteral });
     }
