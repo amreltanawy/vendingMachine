@@ -12,7 +12,7 @@ import { ProductEventOrmEntity } from '../entities/product-event.orm-entity';
 import { ProductEventMapper } from '../mappers/product-event.mapper';
 
 @Injectable()
-export class ProductEventRepositoryImpl implements IProductEventRepository {
+export class ProductEventRepository implements IProductEventRepository {
     constructor(
         @InjectRepository(ProductEventOrmEntity)
         private readonly ormRepository: Repository<ProductEventOrmEntity>
