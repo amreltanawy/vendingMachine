@@ -1,6 +1,5 @@
 // src/application/user/handlers/create-user.handler.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ConflictException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserCommand } from '../commands/create-user.command';
 import { IUserRepository } from '../../../domain/user/repositories/user.irepository';
@@ -10,6 +9,7 @@ import { UserCredential } from '../../../domain/user/entities/user-credential.en
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { UserRole } from '../../../domain/user/value-objects/user-role.vo';
 import { Money } from 'src/domain/shared/value-objects/money.vo';
+import { UserCreationException, UsernameAlreadyExistsException } from '../exceptions/user-application.exceptions';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
@@ -21,13 +21,13 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     async execute(command: CreateUserCommand): Promise<UserId> {
         // Validate input
         if (!command.username || !command.password || !command.role) {
-            throw new BadRequestException('Username, password, and role are required');
+            throw new UserCreationException('Username, password, and role are required');
         }
 
         // Check if username already exists
         const existingUser = await this.userRepository.findByUsername(command.username);
         if (existingUser) {
-            throw new ConflictException('Username already exists');
+            throw new UsernameAlreadyExistsException(command.username);
         }
 
         // Generate new user ID
@@ -70,8 +70,11 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 
             return userId;
         } catch (error) {
+            if (error instanceof UserCreationException || error instanceof UsernameAlreadyExistsException) {
+                throw error;
+            }
             // Rollback if either save fails
-            throw new BadRequestException('Failed to create user account');
+            throw new UserCreationException('Failed to create user account', { originalError: error.message });
         }
     }
 }

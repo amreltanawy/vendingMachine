@@ -1,8 +1,9 @@
 // src/application/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IUserCredentialRepository } from '../../domain/user/repositories/user-credential.irepository';
 import { IUserRepository } from '../../domain/user/repositories/user.irepository';
+import { UserAuthenticationException } from '../user/exceptions/user-application.exceptions';
 import * as bcrypt from 'bcryptjs';
 import { User } from 'src/domain/user/entities/user.entity';
 
@@ -17,13 +18,13 @@ export class AuthService {
     async validateUser(username: string, password: string): Promise<User> {
         const credential = await this.userCredentialRepository.findByUsername(username);
         if (!credential) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UserAuthenticationException('Invalid credentials');
         }
         const passwordHash = await bcrypt.hash(password, credential.salt);
 
         const isPasswordValid = await bcrypt.compare(passwordHash, credential.passwordHash);
         if (!isPasswordValid) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UserAuthenticationException('Invalid credentials');
         }
 
         return await this.userRepository.findByUsername(username);

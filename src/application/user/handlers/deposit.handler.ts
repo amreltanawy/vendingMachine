@@ -1,9 +1,11 @@
 // src/application/user/handlers/deposit.handler.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { DepositCommand } from '../commands/deposit.command';
 import { IUserRepository } from '../../../domain/user/repositories/user.irepository';
 import { Money } from '../../../domain/shared/value-objects/money.vo';
+import { UserNotFoundException, UserAuthorizationException } from '../exceptions/user-application.exceptions';
+import { DepositOperationException } from '../../vending-machine/exceptions/vending-machine-application.exceptions';
+import { DomainException } from '../../../domain/base/domain-exception';
 
 @CommandHandler(DepositCommand)
 export class DepositHandler implements ICommandHandler<DepositCommand> {
@@ -12,19 +14,19 @@ export class DepositHandler implements ICommandHandler<DepositCommand> {
     async execute(command: DepositCommand): Promise<{ totalDeposit: Money }> {
         // Validate input
         if (!command.userId || !command.amount) {
-            throw new BadRequestException('User ID and amount are required');
+            throw new DepositOperationException('User ID and amount are required');
         }
 
         // Find user
         const user = await this.userRepository.findById(command.userId);
 
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UserNotFoundException(command.userId.value);
         }
 
         // Verify user is a buyer
         if (!user.canBuyProduct()) {
-            throw new ForbiddenException('Only buyers can deposit money');
+            throw new UserAuthorizationException('deposit money', user.role.value);
         }
 
         try {
@@ -40,10 +42,17 @@ export class DepositHandler implements ICommandHandler<DepositCommand> {
                 totalDeposit: user.deposit
             };
         } catch (error) {
-            if (error.message.includes('Invalid coin denomination')) {
-                throw new BadRequestException(error.message);
+            if (error instanceof UserNotFoundException ||
+                error instanceof UserAuthorizationException ||
+                error instanceof DepositOperationException) {
+                throw error;
             }
-            throw new BadRequestException('Failed to process deposit');
+
+            if (error instanceof DomainException) {
+                throw new DepositOperationException(error.message, { originalError: error });
+            }
+
+            throw new DepositOperationException('Failed to process deposit', { originalError: error.message });
         }
     }
 }

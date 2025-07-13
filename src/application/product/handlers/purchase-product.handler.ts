@@ -9,6 +9,9 @@ import { ProductId } from '../../../domain/product/value-objects/product-id.vo';
 import { Money } from '../../../domain/shared/value-objects/money.vo';
 import { PurchaseResult } from '../dtos/purchase-result.dto';
 import { ProductEventApplicationService } from '../../product-event/services/product-event.service';
+import { UserNotFoundException, UserAuthorizationException } from '../../user/exceptions/user-application.exceptions';
+import { ProductNotFoundException } from '../exceptions/product-application.exceptions';
+import { VendingMachinePurchaseException } from '../../vending-machine/exceptions/vending-machine-application.exceptions';
 
 @CommandHandler(PurchaseProductCommand)
 export class PurchaseProductHandler implements ICommandHandler<PurchaseProductCommand> {
@@ -25,26 +28,32 @@ export class PurchaseProductHandler implements ICommandHandler<PurchaseProductCo
 
         const user = await this.userRepository.findById(userId);
         if (!user) {
-            throw new Error('User not found');
+            throw new UserNotFoundException(command.userId);
         }
 
         if (!user.canBuyProduct()) {
-            throw new Error('Only buyers can purchase products');
+            throw new UserAuthorizationException('purchase products', user.role.value);
         }
 
         const product = await this.productRepository.findById(productId);
         if (!product) {
-            throw new Error('Product not found');
+            throw new ProductNotFoundException(command.productId);
         }
 
         if (!product.isAvailable()) {
-            throw new Error('Product is not available');
+            throw new VendingMachinePurchaseException('Product is not available', {
+                productId: command.productId,
+                available: product.amountAvailable
+            });
         }
 
         const totalCost = Money.fromCents(product.cost.cents * command.quantity);
 
         if (user.deposit.isLessThan(totalCost)) {
-            throw new Error('Insufficient funds');
+            throw new VendingMachinePurchaseException('Insufficient funds', {
+                required: totalCost.cents,
+                available: user.deposit.cents
+            });
         }
 
         // Execute the purchase
