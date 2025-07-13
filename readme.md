@@ -1,26 +1,35 @@
 <img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
 
-# Vending Machine API – README
+# Vending Machine API
 
-A robust, production-ready NestJS API for a vending machine, designed with
-**Clean Architecture** and **Domain-Driven Design (DDD)** principles. The
-project ensures maintainability, scalability, and clear separation of concerns.
+A robust, production-ready NestJS API for a vending machine system, built with
+**Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS** principles.
+Features comprehensive user management, product operations, secure transactions,
+and idempotency support.
 
-## Table of Contents
+This project with made with the help of an AI tool perplexity labs
+[here](https://www.perplexity.ai/search/you-are-tasked-with-generating-2Gy.abkZSPCePWlxagxCNw)
+is the conversation url
 
-- [Project Structure](#project-structure)
-- [Coding Conventions](#coding-conventions)
-- [Getting Started](#getting-started)
-- [Available Commands](#available-commands)
-- [Environment Variables](#environment-variables)
-- [Testing](#testing)
-- [Docker Usage](#docker-usage)
+The git repository used in this project is accessible through
+[this link](https://github.com/amreltanawy/vendingMachine)
 
-## Project Structure
+## 🚀 Features
+
+- **User Management**: Buyer and seller roles with authentication
+- **Product Management**: CRUD operations for vending machine products
+- **Purchase System**: Complete transaction flow with change calculation
+- **Deposit Management**: Coin-based deposit system with valid denominations
+- **Idempotency**: Redis-based request deduplication for safe retries
+- **Audit Trail**: Complete product event tracking
+- **Role-Based Authorization**: JWT-based authentication with role guards
+- **Comprehensive Testing**: Unit, integration, and E2E test suites
+
+## 📁 Project Structure
 
 ```
 src/
-├── domain/              # Core business logic (entities, value objects, repositories, domain services, events)
+├── domain/                
 ├── application/         # Use cases, application services, CQRS commands/queries/handlers
 ├── infrastructure/      # External concerns (database, security, mappers, adapters)
 ├── presentation/        # Controllers, filters, pipes (HTTP layer)
