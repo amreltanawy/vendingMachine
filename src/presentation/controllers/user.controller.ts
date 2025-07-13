@@ -31,7 +31,6 @@ export class UserController {
     @HttpCode(HttpStatus.CREATED)
     async createUser(
         @Body() createUserDto: CreateUserDto,
-        @IdempotencyKey() idempotencyKey: string
     ) {
         return await this.userService.createUser(createUserDto);
     }
@@ -39,10 +38,10 @@ export class UserController {
     @Get(':id')
     @UseGuards(JwtAuthGuard)
     async getUser(@Request() req: any, @Param('id') id: string) {
-        if (!req.user.userId.equals(UserId.from(id))) {
+        if (!req.user.id.equals(UserId.from(id))) {
             throw new UserAuthorizationException('fetch this user', req.user.role);
         }
-        return await this.userService.getUser(req.user.userId);
+        return await this.userService.getUser(req.user.id);
     }
 
     @Post('deposit')
@@ -53,13 +52,13 @@ export class UserController {
         @Body() body: { amount: number },
         @IdempotencyKey() idempotencyKey: string
     ) {
-        return await this.userService.deposit(req.user.userId, body.amount);
+        return await this.userService.deposit(req.user.id, body.amount);
     }
 
     @Post('reset')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.buyer().toString())
     async resetDeposit(@Request() req: any) {
-        return this.userService.resetDeposit(req.user.userId);
+        return this.userService.resetDeposit(req.user.id);
     }
 }

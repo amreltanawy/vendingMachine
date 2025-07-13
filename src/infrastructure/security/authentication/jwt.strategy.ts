@@ -19,12 +19,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     async validate(payload: any) {
         const userId = UserId.from(payload.sub);
-        const user = await this.userRepository.findById(userId) as unknown as UserOrmEntity;
+        const user = await this.userRepository.findById(userId);
 
         if (!user) {
             throw new UnauthorizedException();
         }
 
-        return UserMapper.toDomain(user);
+        return user;
     }
 }

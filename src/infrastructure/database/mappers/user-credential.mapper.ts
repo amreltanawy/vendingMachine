@@ -17,6 +17,7 @@ export class UserCredentialMapper {
 
     static toOrm(domain: UserCredential): UserCredentialOrmEntity {
         const orm = new UserCredentialOrmEntity();
+        orm.id = domain.userId.value;
         orm.userId = domain.userId.value;
         orm.passwordHash = domain.passwordHash;
         orm.salt = domain.salt;

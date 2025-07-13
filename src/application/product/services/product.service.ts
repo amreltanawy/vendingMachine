@@ -11,6 +11,8 @@ import { GetProductsBySellerQuery } from '../queries/get-products-by-seller.quer
 import { CreateProductDto } from '../dtos/create-product.dto';
 import { UpdateProductDto } from '../dtos/update-product.dto';
 import { ProductResponseDto } from '../dtos/product-response.dto';
+import { PurchaseProductCommand } from '../commands/purchase-product.command';
+import { PurchaseResult } from '../dtos/purchase-result.dto';
 
 /**
  * Application service for product operations.
@@ -123,5 +125,22 @@ export class ProductApplicationService {
     ): Promise<ProductResponseDto[]> {
         const query = new GetProductsBySellerQuery(sellerId, page, limit);
         return await this.queryBus.execute(query);
+    }
+
+    /**
+     * Purchases a product from the vending machine.
+     * 
+     * @param {string} userId - The ID of the user making the purchase
+     * @param {string} productId - The ID of the product to purchase
+     * @param {number} quantity - The quantity to purchase
+     * @returns {Promise<PurchaseResult>} The purchase result
+     */
+    async purchaseProduct(
+        userId: string,
+        productId: string,
+        quantity: number
+    ): Promise<PurchaseResult> {
+        const command = new PurchaseProductCommand(userId, productId, quantity);
+        return await this.commandBus.execute(command);
     }
 }

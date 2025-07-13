@@ -5,8 +5,24 @@ import { AppModule } from '../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from '../src/presentation/middleware/exception-handler.middleware';
 
-// Configure Jest timeout for e2e tests
-jest.setTimeout(60000);
+
+// Set test environment variables
+process.env.NODE_ENV = 'test';
+process.env.TEST_DB_HOST = process.env.TEST_DB_HOST || 'localhost';
+process.env.TEST_DB_PORT = process.env.TEST_DB_PORT || '5432';
+process.env.TEST_DB_USERNAME = process.env.TEST_DB_USERNAME || 'postgres';
+process.env.TEST_DB_PASSWORD = process.env.TEST_DB_PASSWORD || 'password';
+process.env.TEST_DB_NAME = process.env.TEST_DB_NAME || 'vending_machine_test';
+
+console.log('Test environment configured with database:', {
+    host: process.env.TEST_DB_HOST,
+    port: process.env.TEST_DB_PORT,
+    username: process.env.TEST_DB_USERNAME,
+    database: process.env.TEST_DB_NAME,
+});
+
+// Configure Jest timeout
+jest.setTimeout(30000);
 
 // Global test application instance
 let app: INestApplication;

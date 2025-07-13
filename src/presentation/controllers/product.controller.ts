@@ -22,6 +22,7 @@ import { ProductApplicationService } from '../../application/product/services/pr
 import { CreateProductDto } from '../../application/product/dtos/create-product.dto';
 import { UpdateProductDto } from '../../application/product/dtos/update-product.dto';
 import { ProductResponseDto } from '../../application/product/dtos/product-response.dto';
+import { PurchaseResult } from '../../application/product/dtos/purchase-result.dto';
 import { IdempotencyKey } from '../decorators/idempotency.decorator';
 import { IdempotencyInterceptor } from '../interceptors/idempotency.interceptor';
 
@@ -59,13 +60,39 @@ export class ProductController {
         @IdempotencyKey() idempotencyKey: string
     ): Promise<{ id: string; message: string }> {
         const productId = await this.productService.createProduct(
-            req.user.userId,
+            req.user.id.value, // Use the authenticated user's ID
             createProductDto
         );
         return {
             id: productId,
             message: 'Product created successfully'
         };
+    }
+
+    /**
+     * Purchases a product from the vending machine.
+     * Only buyers can purchase products.
+     * 
+     * @param {any} req - The request object containing user information
+     * @param {Object} body - The request body containing productId and quantity
+     * @param {string} body.productId - The ID of the product to purchase
+     * @param {number} body.quantity - The quantity to purchase
+     * @returns {Promise<PurchaseResult>} The purchase result with totalSpent, products, and change
+     */
+    @Post('buy')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('buyer')
+    @HttpCode(HttpStatus.OK)
+    async purchaseProduct(
+        @Request() req: any,
+        @Body() body: { productId: string; quantity: number },
+        @IdempotencyKey() idempotencyKey: string
+    ): Promise<PurchaseResult> {
+        return await this.productService.purchaseProduct(
+            req.user.id.value,
+            body.productId,
+            body.quantity
+        );
     }
 
     /**
@@ -121,7 +148,7 @@ export class ProductController {
         @IdempotencyKey() idempotencyKey: string
     ): Promise<{ message: string }> {
         await this.productService.updateProduct(
-            req.user.userId,
+            req.user.id.value,
             id,
             updateProductDto
         );
@@ -145,7 +172,7 @@ export class ProductController {
         @Param('id') id: string,
         @IdempotencyKey() idempotencyKey: string
     ): Promise<{ message: string }> {
-        await this.productService.deleteProduct(req.user.userId, id);
+        await this.productService.deleteProduct(req.user.id.value, id);
         return { message: 'Product deleted successfully' };
     }
 
@@ -167,7 +194,7 @@ export class ProductController {
         @Query('limit') limit: number = 10
     ): Promise<ProductResponseDto[]> {
         return await this.productService.getProductsBySeller(
-            req.user.userId,
+            req.user.id.value,
             Number(page),
             Number(limit)
         );

@@ -8,8 +8,14 @@ export class UserCredential {
         private readonly _passwordChangedAt: Date,
         private readonly _createdAt?: Date,
         private readonly _updatedAt?: Date,
-    ) { }
+        private readonly _id?: string,
+    ) {
+        this._id = _userId.value;
+    }
 
+    get id(): string {
+        return this._id;
+    }
     get userId(): UserId {
         return this._userId;
     }

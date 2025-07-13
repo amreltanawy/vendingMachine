@@ -19,6 +19,8 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     ) { }
 
     async execute(command: CreateUserCommand): Promise<UserId> {
+        console.log('CreateUserHandler: Starting user creation for:', command.username);
+
         // Validate input
         if (!command.username || !command.password || !command.role) {
             throw new UserCreationException('Username, password, and role are required');
@@ -32,9 +34,11 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
 
         // Generate new user ID
         const userId = UserId.create();
+        console.log('CreateUserHandler: Generated userId:', userId.value);
 
         // Create user role value object
         const userRole = UserRole.from(command.role);
+        console.log('CreateUserHandler: Created user role:', userRole.value);
 
         // Create user domain entity
         const user = User.create(
@@ -45,11 +49,13 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
             new Date(),
             new Date()
         );
+        console.log('CreateUserHandler: Created user entity');
 
         // Hash password with salt
         const saltRounds = 12;
         const salt = await bcrypt.genSalt(saltRounds);
         const passwordHash = await bcrypt.hash(command.password, salt);
+        console.log('CreateUserHandler: Generated password hash');
 
         // Create user credentials
         const userCredential = new UserCredential(
@@ -59,22 +65,41 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
             new Date(),
             new Date()
         );
+        console.log('CreateUserHandler: Created user credentials');
 
         // Save user and credentials in a transaction-like manner
         try {
+            console.log('CreateUserHandler: Saving user...');
             await this.userRepository.save(user);
+            console.log('CreateUserHandler: User saved successfully');
+
+            console.log('CreateUserHandler: Saving credentials...');
             await this.userCredentialRepository.save(userCredential);
+            console.log('CreateUserHandler: Credentials saved successfully');
 
             // Commit events (handled by NestJS CQRS)
             user.commit();
 
+            console.log('CreateUserHandler: User creation completed successfully');
             return userId;
         } catch (error) {
+            console.error('CreateUserHandler: Error during save operations:', error);
+            console.error('CreateUserHandler: Error stack:', error.stack);
+            console.error('CreateUserHandler: Error message:', error.message);
+
             if (error instanceof UserCreationException || error instanceof UsernameAlreadyExistsException) {
                 throw error;
             }
-            // Rollback if either save fails
-            throw new UserCreationException('Failed to create user account', { originalError: error.message });
+            // Include more detailed error information
+            throw new UserCreationException(
+                `Failed to create user account: ${error.message}`,
+                {
+                    originalError: error.message,
+                    errorType: error.constructor.name,
+                    username: command.username,
+                    userId: userId.value
+                }
+            );
         }
     }
 }

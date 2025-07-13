@@ -22,7 +22,8 @@ export class AuthService {
         }
         const passwordHash = await bcrypt.hash(password, credential.salt);
 
-        const isPasswordValid = await bcrypt.compare(passwordHash, credential.passwordHash);
+        const isPasswordValid = passwordHash === credential.passwordHash;
+
         if (!isPasswordValid) {
             throw new UserAuthenticationException('Invalid credentials');
         }
