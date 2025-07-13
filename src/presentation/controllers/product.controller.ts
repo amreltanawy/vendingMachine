@@ -12,7 +12,8 @@ import {
     UseGuards,
     Request,
     HttpCode,
-    HttpStatus
+    HttpStatus,
+    UseInterceptors
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../infrastructure/security/authentication/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/security/authorization/roles.guard';
@@ -21,6 +22,8 @@ import { ProductApplicationService } from '../../application/product/services/pr
 import { CreateProductDto } from '../../application/product/dtos/create-product.dto';
 import { UpdateProductDto } from '../../application/product/dtos/update-product.dto';
 import { ProductResponseDto } from '../../application/product/dtos/product-response.dto';
+import { IdempotencyKey } from '../decorators/idempotency.decorator';
+import { IdempotencyInterceptor } from '../interceptors/idempotency.interceptor';
 
 /**
  * REST controller for product operations in the vending machine.
@@ -29,6 +32,7 @@ import { ProductResponseDto } from '../../application/product/dtos/product-respo
  * @class ProductController
  */
 @Controller('products')
+@UseInterceptors(IdempotencyInterceptor)
 export class ProductController {
     /**
      * Creates an instance of ProductController.
@@ -51,7 +55,8 @@ export class ProductController {
     @HttpCode(HttpStatus.CREATED)
     async createProduct(
         @Request() req: any,
-        @Body() createProductDto: CreateProductDto
+        @Body() createProductDto: CreateProductDto,
+        @IdempotencyKey() idempotencyKey: string
     ): Promise<{ id: string; message: string }> {
         const productId = await this.productService.createProduct(
             req.user.userId,
@@ -112,7 +117,8 @@ export class ProductController {
     async updateProduct(
         @Request() req: any,
         @Param('id') id: string,
-        @Body() updateProductDto: UpdateProductDto
+        @Body() updateProductDto: UpdateProductDto,
+        @IdempotencyKey() idempotencyKey: string
     ): Promise<{ message: string }> {
         await this.productService.updateProduct(
             req.user.userId,
@@ -136,7 +142,8 @@ export class ProductController {
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteProduct(
         @Request() req: any,
-        @Param('id') id: string
+        @Param('id') id: string,
+        @IdempotencyKey() idempotencyKey: string
     ): Promise<{ message: string }> {
         await this.productService.deleteProduct(req.user.userId, id);
         return { message: 'Product deleted successfully' };

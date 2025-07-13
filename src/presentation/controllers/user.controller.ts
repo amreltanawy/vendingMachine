@@ -1,5 +1,16 @@
 // src/presentation/controllers/user.controller.ts
-import { Controller, Post, Body, Get, Param, UseGuards, Request } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    Get,
+    Param,
+    UseGuards,
+    Request,
+    HttpCode,
+    HttpStatus,
+    UseInterceptors
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../../infrastructure/security/authentication/jwt-auth.guard';
 import { RolesGuard } from '../../infrastructure/security/authorization/roles.guard';
 import { Roles } from '../../infrastructure/security/authorization/roles.decorator';
@@ -8,13 +19,20 @@ import { CreateUserDto } from '../../application/user/dtos/create-user.dto';
 import { UserRole } from 'src/domain/user/value-objects/user-role.vo';
 import { UserId } from 'src/domain/user/value-objects/user-id.vo';
 import { UserAuthorizationException } from '../../application/user/exceptions/user-application.exceptions';
+import { IdempotencyKey } from '../decorators/idempotency.decorator';
+import { IdempotencyInterceptor } from '../interceptors/idempotency.interceptor';
 
 @Controller('users')
+@UseInterceptors(IdempotencyInterceptor)
 export class UserController {
     constructor(private readonly userService: UserApplicationService) { }
 
     @Post()
-    async createUser(@Body() createUserDto: CreateUserDto) {
+    @HttpCode(HttpStatus.CREATED)
+    async createUser(
+        @Body() createUserDto: CreateUserDto,
+        @IdempotencyKey() idempotencyKey: string
+    ) {
         return await this.userService.createUser(createUserDto);
     }
 
@@ -30,7 +48,11 @@ export class UserController {
     @Post('deposit')
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.buyer().toString())
-    async deposit(@Request() req: any, @Body() body: { amount: number }) {
+    async deposit(
+        @Request() req: any,
+        @Body() body: { amount: number },
+        @IdempotencyKey() idempotencyKey: string
+    ) {
         return await this.userService.deposit(req.user.userId, body.amount);
     }
 
