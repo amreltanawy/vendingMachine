@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateProductEventCommand } from '../commands/create-product-event.event';
 import { GetProductEventsQuery } from '../queries/get-product-events.query';
-import { GetProductAuditTrailQuery } from '../queries/get-product-audit-trail.query';
 import { CreateProductEventDto } from '../dtos/create-product-event.dto';
 import { ProductEventResponseDto } from '../dtos/product-event-response.dto';
 
@@ -36,10 +35,6 @@ export class ProductEventApplicationService {
         return await this.queryBus.execute(query);
     }
 
-    async getProductAuditTrail(productId: string, limit?: number): Promise<ProductEventResponseDto[]> {
-        const query = new GetProductAuditTrailQuery(productId, limit);
-        return await this.queryBus.execute(query);
-    }
 
     async createTopUpEvent(
         productId: string,

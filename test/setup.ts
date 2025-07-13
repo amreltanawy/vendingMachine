@@ -23,11 +23,6 @@ jest.mock('bcryptjs', () => ({
     genSalt: jest.fn().mockResolvedValue('salt'),
 }));
 
-// Mock UUID for predictable testing
-jest.mock('uuid', () => ({
-    v4: jest.fn(() => 'test-uuid-1234'),
-}));
-
 // Global test utilities
 global.console = {
     ...console,

@@ -7,8 +7,7 @@ import { ResetDepositCommand } from '../commands/reset-deposit.command';
 import { GetUserQuery } from '../queries/get-user.query';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
-import { UserId } from 'src/domain/user/value-objects/user-id.vo';
-import { UUID } from 'typeorm/driver/mongodb/bson.typings';
+import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 
 @Injectable()
 export class UserApplicationService {

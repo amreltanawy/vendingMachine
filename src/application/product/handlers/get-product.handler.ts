@@ -1,11 +1,12 @@
 // src/application/product/handlers/get-product.handler.ts
 
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { GetProductQuery } from '../queries/get-product.query';
 import { IProductRepository } from '../../../domain/product/repositories/product.irepository';
 import { ProductResponseDto } from '../dtos/product-response.dto';
 import { ProductId } from '../../../domain/product/value-objects/product-id.vo';
+import { ProductNotFoundException } from '../exceptions/product-application.exceptions';
 
 /**
  * Handler for retrieving a single product by ID.
@@ -29,7 +30,7 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
      * @param {GetProductQuery} query - The query to execute
      * @returns {Promise<ProductResponseDto>} The product data
      * @throws {BadRequestException} When validation fails
-     * @throws {NotFoundException} When product is not found
+     * @throws {ProductNotFoundException} When product is not found
      */
     async execute(query: GetProductQuery): Promise<ProductResponseDto> {
         // Validate input
@@ -43,18 +44,24 @@ export class GetProductHandler implements IQueryHandler<GetProductQuery> {
             const product = await this.productRepository.findById(productId);
 
             if (!product) {
-                throw new NotFoundException('Product not found');
+                throw new ProductNotFoundException(query.productId);
             }
 
             // Map to response DTO
             return ProductResponseDto.fromDomain(product);
         } catch (error) {
+            // Re-throw known application exceptions
+            if (error instanceof ProductNotFoundException ||
+                error instanceof BadRequestException) {
+                throw error;
+            }
+
+            // Handle UUID validation errors
             if (error.message.includes('Invalid UUID')) {
                 throw new BadRequestException('Invalid product ID format');
             }
-            if (error instanceof NotFoundException) {
-                throw error;
-            }
+
+            // Wrap unexpected errors
             throw new BadRequestException('Failed to retrieve product');
         }
     }

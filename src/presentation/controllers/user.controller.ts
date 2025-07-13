@@ -16,8 +16,8 @@ import { RolesGuard } from '../../infrastructure/security/authorization/roles.gu
 import { Roles } from '../../infrastructure/security/authorization/roles.decorator';
 import { UserApplicationService } from '../../application/user/services/user.service';
 import { CreateUserDto } from '../../application/user/dtos/create-user.dto';
-import { UserRole } from 'src/domain/user/value-objects/user-role.vo';
-import { UserId } from 'src/domain/user/value-objects/user-id.vo';
+import { UserRole } from '../../domain/user/value-objects/user-role.vo';
+import { UserId } from '../../domain/user/value-objects/user-id.vo';
 import { UserAuthorizationException } from '../../application/user/exceptions/user-application.exceptions';
 import { IdempotencyKey } from '../decorators/idempotency.decorator';
 import { IdempotencyInterceptor } from '../interceptors/idempotency.interceptor';

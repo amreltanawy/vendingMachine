@@ -6,7 +6,7 @@ import { JwtStrategy } from '../infrastructure/security/authentication/jwt.strat
 import { JwtAuthGuard } from '../infrastructure/security/authentication/jwt-auth.guard';
 import { RolesGuard } from '../infrastructure/security/authorization/roles.guard';
 import { UserModule } from './user.module';
-import { AuthService } from 'src/application/auth/auth.service';
+import { AuthService } from '../application/auth/auth.service';
 
 @Module({
     imports: [

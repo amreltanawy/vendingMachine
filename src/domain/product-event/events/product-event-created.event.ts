@@ -2,7 +2,7 @@
 import { DomainEvent, IDomainEvent } from '../../shared/base/event';
 import { Money } from '../../shared/value-objects/money.vo';
 import { UserId } from '../../user/value-objects/user-id.vo';
-import { ProductId } from 'src/domain/product/value-objects/product-id.vo';
+import { ProductId } from '../../../domain/product/value-objects/product-id.vo';
 import { ProductEventType } from '../value-objects/product-event-type.vo';
 import { ProductEventId } from '../value-objects/product-event-id.vo';
 

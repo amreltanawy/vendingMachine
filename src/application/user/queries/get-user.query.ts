@@ -1,6 +1,6 @@
 // src/application/user/queries/get-user.query.ts
 import { IQuery } from '@nestjs/cqrs';
-import { UserId } from 'src/domain/user/value-objects/user-id.vo';
+import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 
 /**
  * Query to retrieve a user by their unique identifier.

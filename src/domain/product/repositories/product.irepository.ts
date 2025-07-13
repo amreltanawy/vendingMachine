@@ -1,5 +1,5 @@
 // src/domain/user/repositories/user.repository.ts
-import { UserId } from 'src/domain/user/value-objects/user-id.vo';
+import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { Product } from '../entities/product.entity';
 import { ProductId } from '../value-objects/product-id.vo';
 

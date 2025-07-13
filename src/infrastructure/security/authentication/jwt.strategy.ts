@@ -4,8 +4,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { IUserRepository } from '../../../domain/user/repositories/user.irepository';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
-import { UserMapper } from 'src/infrastructure/database/mappers/user.mapper';
-import { UserOrmEntity } from 'src/infrastructure/database/entities/user.orm-entity';
+import { UserMapper } from '../../../infrastructure/database/mappers/user.mapper';
+import { UserOrmEntity } from '../../../infrastructure/database/entities/user.orm-entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

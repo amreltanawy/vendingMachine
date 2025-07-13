@@ -8,7 +8,7 @@ import { CreateUserHandler } from '../application/user/handlers/create-user.hand
 import { DepositHandler } from '../application/user/handlers/deposit.handler';
 import { ResetDepositHandler } from '../application/user/handlers/reset-deposit.handler';
 import { GetUserHandler } from '../application/user/handlers/get-user.handler';
-import { UserApplicationService } from 'src/application/user/services/user.service';
+import { UserApplicationService } from '../application/user/services/user.service';
 import { DatabaseModule } from './database.module';
 
 

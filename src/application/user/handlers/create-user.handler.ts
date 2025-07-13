@@ -8,7 +8,7 @@ import { User } from '../../../domain/user/entities/user.entity';
 import { UserCredential } from '../../../domain/user/entities/user-credential.entity';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { UserRole } from '../../../domain/user/value-objects/user-role.vo';
-import { Money } from 'src/domain/shared/value-objects/money.vo';
+import { Money } from '../../../domain/shared/value-objects/money.vo';
 import { UserCreationException, UsernameAlreadyExistsException } from '../exceptions/user-application.exceptions';
 
 @CommandHandler(CreateUserCommand)

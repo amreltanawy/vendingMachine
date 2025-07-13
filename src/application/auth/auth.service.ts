@@ -5,7 +5,7 @@ import { IUserCredentialRepository } from '../../domain/user/repositories/user-c
 import { IUserRepository } from '../../domain/user/repositories/user.irepository';
 import { UserAuthenticationException } from '../user/exceptions/user-application.exceptions';
 import * as bcrypt from 'bcryptjs';
-import { User } from 'src/domain/user/entities/user.entity';
+import { User } from '../../domain/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
