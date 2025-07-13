@@ -7,6 +7,7 @@ import { User } from '../../../domain/user/entities/user.entity';
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { UserOrmEntity } from '../entities/user.orm-entity';
 import { UserMapper } from '../mappers/user.mapper';
+import { UserRepositoryException } from '../../user/exceptions/user-infrastructure.exceptions';
 
 @Injectable()
 export class UserRepositoryImpl implements IUserRepository {
@@ -23,7 +24,7 @@ export class UserRepositoryImpl implements IUserRepository {
 
             return ormEntity ? UserMapper.toDomain(ormEntity) : null;
         } catch (error) {
-            throw new Error(`Failed to find user by ID: ${error.message}`);
+            throw new UserRepositoryException('findById', error);
         }
     }
 
@@ -35,7 +36,7 @@ export class UserRepositoryImpl implements IUserRepository {
 
             return ormEntity ? UserMapper.toDomain(ormEntity) : null;
         } catch (error) {
-            throw new Error(`Failed to find user by username: ${error.message}`);
+            throw new UserRepositoryException('findByUsername', error);
         }
     }
 
@@ -44,7 +45,7 @@ export class UserRepositoryImpl implements IUserRepository {
             const ormEntity = UserMapper.toOrm(user);
             await this.ormRepository.save(ormEntity);
         } catch (error) {
-            throw new Error(`Failed to save user: ${error.message}`);
+            throw new UserRepositoryException('save', error);
         }
     }
 
@@ -52,10 +53,10 @@ export class UserRepositoryImpl implements IUserRepository {
         try {
             const result = await this.ormRepository.delete({ id: id.value });
             if (result.affected === 0) {
-                throw new Error('User not found');
+                throw new UserRepositoryException('delete', new Error('User not found'));
             }
         } catch (error) {
-            throw new Error(`Failed to delete user: ${error.message}`);
+            throw new UserRepositoryException('delete', error);
         }
     }
 
@@ -66,7 +67,7 @@ export class UserRepositoryImpl implements IUserRepository {
             });
             return count > 0;
         } catch (error) {
-            throw new Error(`Failed to check username existence: ${error.message}`);
+            throw new UserRepositoryException('existsByUsername', error);
         }
     }
 
@@ -78,7 +79,7 @@ export class UserRepositoryImpl implements IUserRepository {
 
             return ormEntities.map(entity => UserMapper.toDomain(entity));
         } catch (error) {
-            throw new Error(`Failed to find all users: ${error.message}`);
+            throw new UserRepositoryException('findAll', error);
         }
     }
 
@@ -86,7 +87,7 @@ export class UserRepositoryImpl implements IUserRepository {
         try {
             return await this.ormRepository.count();
         } catch (error) {
-            throw new Error(`Failed to count users: ${error.message}`);
+            throw new UserRepositoryException('count', error);
         }
     }
 }

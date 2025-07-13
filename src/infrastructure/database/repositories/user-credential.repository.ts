@@ -7,6 +7,7 @@ import { UserCredential } from '../../../domain/user/entities/user-credential.en
 import { UserId } from '../../../domain/user/value-objects/user-id.vo';
 import { UserCredentialOrmEntity } from '../entities/user-credential.orm-entity';
 import { UserCredentialMapper } from '../mappers/user-credential.mapper';
+import { UserCredentialException } from '../../user/exceptions/user-infrastructure.exceptions';
 
 @Injectable()
 export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
@@ -23,7 +24,7 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
 
       return ormEntity ? UserCredentialMapper.toDomain(ormEntity) : null;
     } catch (error) {
-      throw new Error(`Failed to find credentials by user ID: ${error.message}`);
+      throw new UserCredentialException('findByUserId', error);
     }
   }
 
@@ -35,7 +36,7 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
 
       return ormEntity ? UserCredentialMapper.toDomain(ormEntity) : null;
     } catch (error) {
-      throw new Error(`Failed to find credentials by username: ${error.message}`);
+      throw new UserCredentialException('findByUsername', error);
     }
   }
 
@@ -44,7 +45,7 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
       const ormEntity = UserCredentialMapper.toOrm(credential);
       await this.ormRepository.save(ormEntity);
     } catch (error) {
-      throw new Error(`Failed to save user credentials: ${error.message}`);
+      throw new UserCredentialException('save', error);
     }
   }
 
@@ -52,10 +53,10 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
     try {
       const result = await this.ormRepository.delete({ userId: userId.value });
       if (result.affected === 0) {
-        throw new Error('User credentials not found');
+        throw new UserCredentialException('delete', new Error('User credentials not found'));
       }
     } catch (error) {
-      throw new Error(`Failed to delete user credentials: ${error.message}`);
+      throw new UserCredentialException('delete', error);
     }
   }
 
@@ -66,7 +67,7 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
       });
       return count > 0;
     } catch (error) {
-      throw new Error(`Failed to check credentials existence: ${error.message}`);
+      throw new UserCredentialException('existsByUserId', error);
     }
   }
 
@@ -81,10 +82,10 @@ export class UserCredentialRepositoryImpl implements IUserCredentialRepository {
       );
 
       if (result.affected === 0) {
-        throw new Error('User credentials not found');
+        throw new UserCredentialException('updatePasswordHash', new Error('User credentials not found'));
       }
     } catch (error) {
-      throw new Error(`Failed to update password hash: ${error.message}`);
+      throw new UserCredentialException('updatePasswordHash', error);
     }
   }
 }
